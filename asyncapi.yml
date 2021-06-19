@@ -1,0 +1,779 @@
+asyncapi: 2.0.0
+info:
+  title: AIoT Gateway API
+  version: '1.0.0'
+  description: |
+    The AIoT Gateway API allows you to remotely manage the end device (sensors, actuators, toys and robots).
+
+    ### Check out its awesome features:
+
+    * Deploy and delete a specific project on the toy
+    * Communicate between the sensor / device can be either via Wireless (MQTT) or Bluetooth 😎
+    * Receive real-time information about sensor, toy, tablet and robot conditions 📈
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  mosquitto:
+    url: the IP address of the aiot gateway:{port}
+    protocol: mqtt
+    description: aiot gateway broker
+    variables:
+      port:
+        description: Secure connection (TLS) is available through port 8883.
+        default: '1883'
+        enum:
+          - '1883'
+          - '8883'
+    security:
+      - user-password: []
+      
+      
+defaultContentType: application/json
+
+channels:
+  "{eth0Mac}/user/upsert":
+    description: "The topic is for updating or inserting a user's information."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+    subscribe:
+      summary: Update or insert information about a user.
+      operationId: upsertUser
+      message:
+        $ref: '#/components/messages/upsertUser'
+        
+  "{eth0Mac}/user/query":
+    description: "The topic is for querying a user's information."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+    subscribe:
+      summary: Query information about a user.
+      operationId: queryUser
+      message:
+        $ref: '#/components/messages/queryUser'
+        
+  "{eth0Mac}/devices/scan":
+    description: "The topic is for scanning Bluetooth devices, toys, tablets and robots."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+    subscribe:
+      summary: Scan for Bluetooth devices and mDNS devices.
+      operationId: scanDevices
+      message:
+        $ref: '#/components/messages/scanDevices'
+        
+  "{eth0Mac}/devices/query":
+    description: "The topic is for querying the device information connected to AIoT Gateway."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+    subscribe:
+      summary: Query information about a device connected to AIoT Gateway .
+      operationId: queryDevice
+      message:
+        $ref: '#/components/messages/queryDevice'
+        
+  "{eth0Mac}/devices/{devMac}/add":
+    description: "The topic is for adding and connecting the Bluetooth devices, toys, tablets, and robots."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      devMac:
+        $ref: '#/components/parameters/devMac'
+    subscribe:
+      summary: Add and connect a device that was scanned.
+      operationId: addDevice
+      message:
+        $ref: '#/components/messages/addDevice'
+        
+  "{eth0Mac}/devices/{devMac}/delete":
+    description: "The topic is for deleting the connected device."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      devMac:
+        $ref: '#/components/parameters/devMac'
+    subscribe:
+      summary: Delete the connected device.
+      operationId: deleteDevice
+      message:
+        $ref: '#/components/messages/deleteDevice'
+        
+  "{eth0Mac}/devices/{devMac}/read":
+    description: "The topic is for reading the current value of the Bluetooth device."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      devMac:
+        $ref: '#/components/parameters/devMac'
+    subscribe:
+      summary: Read the current value of the Bluetooth device.
+      operationId: readDevice
+      message:
+        $ref: '#/components/messages/readDevice'
+        
+  "{eth0Mac}/{projectId}/devices/{devMac}/write":
+    description: "The topic is for writing the given data to the Bluetooth device."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      projectId:
+        $ref: '#/components/parameters/projectId'
+      devMac:
+        $ref: '#/components/parameters/devMac'
+    subscribe:
+      summary: Write the given data to the Bluetooth device.
+      operationId: writeDevice
+      message:
+        $ref: '#/components/messages/writeDevice'
+        
+  "{eth0Mac}/projects/{projectId}/delete":
+    description: "The topic is for deleting a project or many projects."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      projectId:
+        $ref: '#/components/parameters/projectId'
+    subscribe:
+      summary: Delete a project or many projects.
+      operationId: deleteProject
+      message:
+        $ref: '#/components/messages/deleteProject'
+        
+  "{eth0Mac}/projects/{projectId}/update":
+    description: "The topic is for updating a project or many projects information"
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      projectId:
+        $ref: '#/components/parameters/projectId'
+    subscribe:
+      summary: Update a project or many projects.
+      operationId: updateProject
+      message:
+        $ref: '#/components/messages/updateProject'
+      
+  "{eth0Mac}/projects/{projectId}/run":
+    description: "The topic is for running the given project or many given projects"
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      projectId:
+        $ref: '#/components/parameters/projectId'
+    subscribe:
+      summary: Run a project or many projects.
+      operationId: runProject
+      message:
+        $ref: '#/components/messages/runProject'
+        
+  "{eth0Mac}/projects/{projectId}/stop":
+    description: "The topic is for stopping a running project or many running projects"
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      projectId:
+        $ref: '#/components/parameters/projectId'
+    subscribe:
+      summary: Stop a running project or many running projects.
+      operationId: stopProject
+      message:
+        $ref: '#/components/messages/stopProject'
+  
+  "{eth0Mac}/{username}/user/upsert/result":
+    description: "The topic is for returning the result of updating or inserting a user's information."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      username:
+        $ref: '#/components/parameters/username'
+    publish:
+      summary: Return the update or the insert result of a user information.
+      operationId: upsertUserResult
+      message:
+        $ref: '#/components/messages/upsertUserResult'
+        
+  "{eth0Mac}/{username}/user/query/result":
+    description: "The topic is for returning the result of querying a user's information."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      username:
+        $ref: '#/components/parameters/username'
+    publish:
+      summary: Return the query results of a user information.
+      operationId: queryUserResult
+      message:
+        $ref: '#/components/messages/queryUserResult'
+        
+  "{eth0Mac}/{username}/devices/scan/result":
+    description: "The topic is for returning the result of scanning Bluetooth devices, toys, tablets and robots."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      username:
+        $ref: '#/components/parameters/username'
+    publish:
+      summary: Return the scan results of devices.
+      operationId: scanDevicesResult
+      message:
+        $ref: '#/components/messages/scanDevicesResult'
+        
+  "{eth0Mac}/{username}/devices/query/result":
+    description: "The topic is for returning the result of querying the device information connected to AIoT Gateway."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      username:
+        $ref: '#/components/parameters/username'
+    publish:
+      summary: Return the query results of the device information.
+      operationId: queryDeviceResult
+      message:
+        $ref: '#/components/messages/queryDeviceResult'
+        
+  "{eth0Mac}/{username}/devices/{devMac}/add/result":
+    description: "The topic is for returning the result of adding and connecting the Bluetooth devices, toys, tablets, and robots."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      username:
+        $ref: '#/components/parameters/username'
+      devMac:
+        $ref: '#/components/parameters/devMac'
+    publish:
+      summary: Return the addition and the connection result of a device.
+      operationId: addDeviceResult
+      message:
+        $ref: '#/components/messages/addDeviceResult'
+        
+  "{eth0Mac}/{username}/devices/{devMac}/delete/result":
+    description: "The topic is for returning the result of deleting the connected device."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      username:
+        $ref: '#/components/parameters/username'
+      devMac:
+        $ref: '#/components/parameters/devMac'
+    publish:
+      summary: Return the delete result of the connected device.
+      operationId: deleteDeviceResult
+      message:
+        $ref: '#/components/messages/deleteDeviceResult'
+        
+  "{eth0Mac}/{username}/devices/{devMac}/read/result":
+    description: "The topic is for returning the result of reading the current value of the Bluetooth device."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      username:
+        $ref: '#/components/parameters/username'
+      devMac:
+        $ref: '#/components/parameters/devMac'
+    publish:
+      summary: Pass the current value of the Bluetooth device to the MQTT client.
+      operationId: readDeviceResult
+      message:
+        $ref: '#/components/messages/pubReadDevice'
+        
+  "{eth0Mac}/{username}/projects/{projectId}/delete/result":
+    description: "The topic is for returning the result of deleting a project or many projects."
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      username:
+        $ref: '#/components/parameters/username'
+      projectId:
+        $ref: '#/components/parameters/projectId'
+    publish:
+      summary: Return the delete result of a project or many projects.
+      operationId: deleteProjectResult
+      message:
+        $ref: '#/components/messages/deleteProjectResult'
+        
+  "{eth0Mac}/{username}/projects/{projectId}/update/result":
+    description: "The topic is for returning the result of updating a project or many projects information"
+    parameters:
+      eth0Mac:
+        $ref: '#/components/parameters/eth0Mac'
+      username:
+        $ref: '#/components/parameters/username'
+      projectId:
+        $ref: '#/components/parameters/projectId'
+    publish:
+      summary: Return the update result of a project or many projects.
+      operationId: updateProjectResult
+      message:
+        $ref: '#/components/messages/updateProjectResult'
+    
+components:
+  messages:
+    upsertUser:
+      name: upsertUser
+      title: "Update or insert a new user's information"
+      summary: "Receive a new user's information updates or inserts on."
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/upsertUserPayload"
+    queryUser:
+      name: queryUser
+      title: "Query a user's information"
+      summary: "Receive a particular user's information queries on."
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/queryUserPayload"
+    scanDevices:
+      name: scanDevices
+      title: "Scan devices"
+      summary: Receive Bluetooth device and mDNS device scans on.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/scanDevicesPayload"
+    queryDevice:
+      name: queryDevice
+      title: "Query device"
+      summary: Receive a particular device property queries on.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/queryDevicePayload"
+    addDevice:
+      name: addDevice
+      title: "Add device"
+      summary: Receive a particular device addition and connection on.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/addDevicePayload"
+    deleteDevice:
+      name: deleteDevice
+      title: "Delete device"
+      summary: Receive a particular device delete on.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/deleteDevicePayload"
+    readDevice:
+      name: readDevice
+      title: "Read data from device"
+      summary: Receive a particular device property reads on.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/readDevicePayload"
+    writeDevice:
+      name: writeDevice
+      title: "Write data to device"
+      summary: Receive a particular device writing command on.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/writeDevicePayload"
+    deleteProject:
+      name: deleteProject
+      title: "Delete project"
+      summary: Receive particular projects delete on.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/deleteProjectPayload"
+    updateProject:
+      name: updateProject
+      title: "Update project"
+      summary: Receive particular projects information updates on.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/updateProjectPayload"
+    runProject:
+      name: runProject
+      title: "Run a project or many projects"
+      summary: Receive particular project runs on.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/runProjectPayload"
+    stopProject:
+      name: stopProject
+      title: "Stop a running project"
+      summary: Receive particular project stops on.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/stopProjectPayload"
+        
+    upsertUserResult:
+      name: upsertUserResult
+      title: Update and insert a user information result
+      summary: Return the update or the insert result of a user information.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/upsertUserResultPayload"
+    queryUserResult:
+      name: queryUserResult
+      title: Query user information result
+      summary: Return the query results of a user information.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/queryUserResultPayload"
+    scanDevicesResult:
+      name: scanDevicesResult
+      title: Scan devices result
+      summary: Return the scan results of devices.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/scanDevicesResultPayload"
+    queryDeviceResult:
+      name: queryDeviceResult
+      title: Query device result
+      summary: Return the query results of the device information.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/queryDeviceResultPayload"
+    addDeviceResult:
+      name: addDeviceResult
+      title: Add device result
+      summary: Return the addition and the connection result of a device.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/addDeviceResultPayload"
+    deleteDeviceResult:
+      name: deleteDeviceResult
+      title: Delete device result
+      summary: Return the delete result of the connected device.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/deleteDeviceResultPayload"
+    pubReadDevice:
+      name: pubReadDevice
+      title: Read a device value
+      summary: Pass the current value of the Bluetooth device to the MQTT client.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/pubReadDevicePayload"
+    deleteProjectResult:
+      name: deleteProjectResult
+      title: Delete project result
+      summary: Return the delete result of a project or many projects.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/deleteProjectResultPayload"
+    updateProjectResult:
+      name: updateProjectResult
+      title: Update project result
+      summary: Return the update result of a project or many projects.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/updateProjectResultPayload"
+        
+  schemas:
+    upsertUserPayload:
+      type: object
+      properties:
+        editor:
+          type: string
+          example: "Mark12"
+          description: "The user's username"
+        code:
+          type: string
+          example: "1234"
+          description: "Verification code"
+    queryUserPayload:
+      type: object
+      properties:
+        editor:
+          type: string 
+          example: "Mark12"
+          description: "The user's username"
+    scanDevicesPayload:
+      type: object
+      properties:
+        editor:
+          type: string
+          example: "Mark12"
+          description: "The user's username"
+    queryDevicePayload:
+      type: object
+      properties:
+        editor:
+          type: string
+          example: "Mark12"
+          description: "The user's username"
+    addDevicePayload:
+      type: object
+      properties:
+        editor:
+          type: string
+          example: "Mark12"
+          description: "The user's username"
+        mac_address:
+          type: string
+          example: "50:65:83:6f:54:7f"
+          description: "The Bluetooth MAC address"
+        name:
+          type: string
+          example: "RCSL_BLENFC"
+          description: "The device name"
+    deleteDevicePayload:
+      type: object
+      properties:
+        editor:
+          type: string
+          example: "Mark12"
+          description: "The user's username"
+        mac_address:
+          type: string
+          example: "50:65:83:6f:54:7f"
+          description: "The Bluetooth MAC address"
+    readDevicePayload:
+      type: object
+      description: "null"
+      nullable: true
+    writeDevicePayload:
+      type: object
+      properties:
+        value:
+          AnyValue: {}
+          description: Can be any value - string, number, boolean, array or object.
+    deleteProjectPayload:
+      type: object
+      properties:
+        project:
+          type: array
+          items:
+            - type: object
+              properties:
+                editor:
+                  type: string
+                  example: "Mark12"
+                  description: "The user's username"
+                p_id:
+                  type: array
+                  items:
+                    type: string
+                    example: "p01"
+                    description: "The project ID"
+            - type: object
+              properties:
+                editor:
+                  type: string
+                  example: "Mary34"
+                  description: "The user's username"
+                p_id:
+                  type: array                  
+                  items:
+                    - type: string
+                      example: "p01"
+                      description: "The project ID"
+                    - type: string
+                      example: "p02"
+                      description: "The project ID"
+    updateProjectPayload:
+      type: object
+      properties:
+        project:
+          type: array
+          items:
+            - type: object
+              properties:
+                editor:
+                  type: string
+                  example: "Mark12"
+                  description: "The user's username"
+                p_id:
+                  type: string
+                  example: "p01"
+                  description: "The project ID"
+                project_name:
+                  type: string
+                  example: "Classifier"
+                  description: "The project name"
+                gw_proj_md5:
+                  type: string
+                  example: "6ef23a90b91e9e300d0a3a79446185db"
+                  description: "The MD5 checksum of the project."
+                to_toy:
+                  type: array                  
+                  items:
+                    - type: string
+                      example: "b827eb534e61"
+                      description: "The eth0 MAC address of the Raspberry Pi."
+                main_script:
+                  type: array                  
+                  items:
+                    - type: string
+                      example: "main"
+                      description: "The name of the python script that has the Main function."
+                sensor:
+                  type: array                  
+                  items:
+                    - type: string
+                      example: "c4:be:84:23:b5:01"
+                      description: "The Bluetooth MAC address."
+    runProjectPayload:
+      type: object
+      properties:
+        project:
+          type: array
+          items:
+            - type: object
+              properties:
+                editor:
+                  type: string
+                  example: "Mark12"
+                  description: "The user's username"
+                p_id:
+                  type: array
+                  items:
+                    type: string
+                    example: "p01"
+                    description: "The project ID"
+    stopProjectPayload:
+      type: object
+      properties:
+        project:
+          type: array
+          items:
+            - type: object
+              properties:
+                editor:
+                  type: string
+                  example: "Mark12"
+                  description: "The user's username"
+                p_id:
+                  type: array
+                  items:
+                    type: string
+                    example: "p01"
+                    description: "The project ID"
+                    
+    upsertUserResultPayload:
+      type: object
+      example: "success"
+      properties:
+        status:
+          type: string
+          description: any status messages - success or error messages.
+    queryUserResultPayload:
+      type: object
+      example: "success"
+      properties:
+        status:
+          type: string
+          description: any status messages - success or error messages.
+    scanDevicesResultPayload:
+      type: object
+      properties:
+        address:
+          type: string
+          example: 192.168.0.2
+          description: The ip address of the AIoT Gateway.
+        "00:10:01":
+          type: object
+          description: The device MAC address.
+          properties:
+            type:
+              type: string
+              example: bluetooth sensor
+              description: The device type.
+            name:
+              type: string
+              example: BLENFC
+              description: The device name.
+        "00:00:02":
+          type: object
+          description: The device MAC address.
+          properties:
+            type:
+              type: string
+              example: iot toy
+              description: The device type.
+            name:
+              type: string
+              example: iot dog toy
+              description: The device name.
+            ip:
+              type: string
+              example: 192.168.0.3
+              description: The ip address of the device.
+    queryDeviceResultPayload:
+      type: object
+      properties:
+        address:
+          type: string
+          example: 192.168.0.2
+          description: The ip address of the AIoT Gateway.
+        "00:10:01":
+          type: object
+          description: The device MAC address.
+          properties:
+            type:
+              type: integer
+              enum: [1, 2]
+              example: 1
+              description: |
+                1 - Sensor                
+                2 - Actuator
+            name:
+              type: string
+              example: BLELED
+              description: The device name.
+            status:
+              type: string
+              example: on
+              description: The current value of the Bluetooth device.
+    addDeviceResultPayload:
+      type: object
+      example: "success"
+      properties:
+        status:
+          type: string
+          description: any status messages - success or error messages.
+    deleteDeviceResultPayload:
+      type: object
+      example: "success"
+      properties:
+        status:
+          type: string
+          description: any status messages - success or error messages.
+    pubReadDevicePayload:
+      type: object
+      example: "success"
+      properties:
+        value:
+          AnyValue: {}
+          description: Can be any value - string, number, boolean, array or object.
+    deleteProjectResultPayload:
+      type: object
+      example: "success"
+      properties:
+        status:
+          type: string
+          description: any status messages - success or error messages.
+    updateProjectResultPayload:
+      type: object
+      example: "success"
+      properties:
+        status:
+          type: string
+          description: any status messages - success or error messages.
+
+  securitySchemes:
+    user-password:
+      type: userPassword
+      description: MQTT authentication with username/password
+      
+  parameters:
+    eth0Mac:
+      description: The eth0 MAC address of the Raspberry Pi.
+      schema:
+        type: string
+    username:
+        description: "The user's username."
+        schema:
+          type: string
+    devMac:
+      description: The Bluetooth MAC address.
+      schema:
+        type: string
+    projectId:
+      description: The project ID.
+      schema:
+        type: string
+        
+        
